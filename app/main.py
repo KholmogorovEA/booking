@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Optional
-# from datetime import time 
+import sentry_sdk
 import time
 
 
@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
+from fastapi_versioning import VersionedFastAPI, version
 from pydantic import BaseModel
 from redis import asyncio as aioredis
 from sqladmin import Admin, ModelView
@@ -25,11 +26,7 @@ from app.pages.router import router as router_pages
 from app.users.models import Users
 from app.users.router import router as router_users
 from app.logger import logger
-import sentry_sdk
-from fastapi_versioning import VersionedFastAPI, version
-from prometheus_fastapi_instrumentator import Instrumentator
-
-#####################################################
+# from prometheus_fastapi_instrumentator import Instrumentator
 
 
 app = FastAPI()
@@ -77,11 +74,11 @@ app = VersionedFastAPI(app,
 
 
 #metrics
-instrumentator = Instrumentator(
-    should_group_status_codes=False,
-    excluded_handlers=[".*admin.*", "/metrics"]
-)
-instrumentator.instrument(app).expose(app)
+# instrumentator = Instrumentator(
+#     should_group_status_codes=False,
+#     excluded_handlers=[".*admin.*", "/metrics"]
+# )
+# instrumentator.instrument(app).expose(app)
 
 
 #Adminka sqlAdmin 
@@ -103,7 +100,6 @@ async def add_process_time_header(request: Request, call_next):
         "process_time": round(process_time, 4)
     })
     return response
-
 
 
 app.mount("/static", StaticFiles(directory="app/static"), "static") 
